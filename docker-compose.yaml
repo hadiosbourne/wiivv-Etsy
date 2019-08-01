@@ -1,0 +1,21 @@
+version: '3.3'
+services:
+  etsy:
+    image: etsy
+    container_name: etsy
+    ports:
+    - "4000:4000"
+    command: 'npm run test'
+    environment:
+    - NODE_ENV=ci
+    depends_on:
+    - database
+    ports:
+    - "2525:2525"
+    - "4000:4000"
+  database:
+    container_name: database
+    hostname: database
+    image: database
+    ports:
+    - "27017:27017"

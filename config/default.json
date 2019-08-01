@@ -1,0 +1,32 @@
+{
+  "server": {
+    "port": 4000
+  },
+  "mongo": {
+    "database_host": "mongodb://localhost:27017/EtsyDev",
+    "options": {
+      "config": {
+        "autoIndex": false
+      },
+      "useMongoClient": true
+    }
+  },
+  "currency_layer_config": {
+    "api_key":"has real value on the server",
+    "url": "http://www.apilayer.net/api/live",
+    "quote_ttl": 300,
+    "currencies": [
+      "GBP",
+      "CAD",
+      "USD",
+      "EUR"
+    ]
+  },
+  "etsy_config": {
+    "api_key": "has real value on the server",
+    "url": "https://openapi.etsy.com/v2",
+    "url_ttl": 300
+  },
+  "jwt_api_token": "has real value on the server",
+  "swagger_ui_config": {}
+}

@@ -1,0 +1,319 @@
+swagger: "2.0"
+info:
+  description: "Etsy API"
+  version: "1.0.0"
+  title: "wiivv-Etsy backend Service"
+host: "localhost:4000"
+basePath: "/v1"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+tags:
+- name: status
+  description: "Returns the service status"
+- name: Product
+  description: "Product related routes"
+- name: Etsy
+  description: "Etsy related routes"
+paths:
+  /status:
+    get:
+      tags:
+        - "Status"
+      description: "Gets the status of the service"
+      operationId: "getSystemStatus"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "The server status will be returned"
+          schema:
+            $ref: "#/definitions/server_status_response"
+      x-swagger-router-controller: "Status"
+  /etsy-top-listing:
+    get:
+      tags:
+        - Etsy
+      description: "Retrieves the list of top products from etsy api"
+      operationId: "retrieveEtsyList"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorization"
+        - $ref: "#/parameters/page"
+        - $ref: "#/parameters/items_per_page"
+        - $ref: "#/parameters/currency"
+      security:
+        - jwt: []
+      responses:
+        200:
+          description: "list of etsy products matching the query"
+          schema:
+            $ref: "#/definitions/etsy_response_def"
+        204:
+          description: "No Content. Returned if no etsy products were found."
+      x-swagger-router-controller: "Etsy"
+  /product:
+    get:
+      tags:
+        - Product
+      description: "Retrieves the list of products that matches the passed query arguments"
+      operationId: "retrieveProductList"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorization"
+        - $ref: "#/parameters/page"
+        - $ref: "#/parameters/items_per_page"
+        - $ref: "#/parameters/sorting"
+        - $ref: "#/parameters/sort_order"
+        - $ref: "#/parameters/currency"
+      security:
+        - jwt: []
+      responses:
+        200:
+          description: "list of products matching the query"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/products_response_def"
+        204:
+          description: "No Content. Returned if no products were found."
+      x-swagger-router-controller: "Product"
+    post:
+      tags:
+        - Product
+      operationId: postProduct
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorization"
+        - $ref: "#/parameters/products_body_param"
+      security:
+        - jwt: []
+      responses:
+        201:
+          description: "product content was created"
+          schema:
+            $ref: "#/definitions/products_response_def"
+      x-swagger-router-controller: "Product"
+  /product/{product_id}:
+    parameters:
+      - $ref: "#/parameters/authorization"
+      - $ref: "#/parameters/product_id"
+    put:
+      x-swagger-router-controller: "Product"
+      operationId: "putProduct"
+      security:
+        - jwt: []
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/products_body_param"
+      responses:
+        200:
+          description: "The updated Product content will be returned"
+          schema:
+            $ref: "#/definitions/products_response_def"
+      tags:
+        - Product
+      summary: "Upsert a Product content"
+    delete:
+      x-swagger-router-controller: "Product"
+      operationId: "deleteProduct"
+      security:
+        - jwt: []
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "The deleted Product will be returned"
+          schema:
+            $ref: "#/definitions/products_response_def"
+      tags:
+        - Product
+      summary: "deletes a Product content"
+parameters:
+  product_id:
+    name: product_id
+    in: path
+    required: true
+    pattern: ^[0-9a-fA-F]{24}$
+    description: "The product id"
+    type: string
+  page:
+    name: "page"
+    in: "query"
+    description: "The page of products to be displayed"
+    required: false
+    type: "integer"
+    default: 1
+    minimum: 1
+  items_per_page:
+    name: "items_per_page"
+    in: "query"
+    description: "The number of products per page"
+    required: false
+    type: "integer"
+    default: 10
+    minimum: 1
+    maximum: 100
+  currency:
+    name: "currency"
+    in: query
+    required: true
+    type: string
+    enum:
+      - USD
+      - GBP
+      - CAD
+      - EUR
+  sorting:
+    name: sort_parameter
+    in: query
+    description: "sorting parameter"
+    type: string
+    default: type
+    enum:
+      - type
+      - price
+      - title
+  sort_order:
+    name: sort_order
+    in: query
+    description: "sorting order"
+    type: integer
+    default: 1
+    enum:
+      - 1
+      - -1
+  authorization:
+    name: authorization
+    in: header
+    required: true
+    type: string
+    description: "The JWT Token"
+  products_body_param:
+    name: product
+    in: body
+    description: "product to capture record to load"
+    schema:
+      $ref: "#/definitions/products_body_def"
+definitions:
+  mongoose_default_fields:
+    type: object
+    required:
+      - _id
+      - updated_at
+      - created_at
+      - __v
+    properties:
+      _id:
+        type: string
+        pattern: ^[0-9a-fA-F]{24}$
+      updated_at:
+        type: string
+        format: date-time
+      created_at:
+        type: string
+        format: date-time
+      __v:
+        type: integer
+  products_body_def:
+    required:
+      - title
+      - type
+      - price
+    properties:
+      title:
+        type: "string"
+        description: "the name of the product"
+      type:
+        type: "string"
+        description: "type of the product"
+      price:
+        type: "integer"
+        description: "price of the product"
+      description:
+        type: "string"
+        description: "the description of the product"
+      thumbnail_url:
+        type: "string"
+        pattern: ^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$
+        description: "the url of the thumbnail of the product"
+  products_response_def:
+    allOf:
+    - $ref: "#/definitions/mongoose_default_fields"
+    - $ref: "#/definitions/products_body_def"
+  etsy_results_response_def:
+    properties:
+      title:
+        type: "string"
+        description: "the name of the product"
+      price:
+        type: integer
+        description: "the price of the product"
+      listing_id:
+        type: integer
+        description: "the id of listing from etsy"
+      url:
+        type: "string"
+        description: "the url of the etsy product"
+  etsy_response_def:
+    properties:
+      currentPage:
+        type: integer
+      nextPage:
+        type: integer
+      limit:
+        type: integer
+      totalCount:
+        type: integer
+      results:
+        type: array
+        items:
+          - $ref: "#/definitions/etsy_results_response_def"
+  server_status_response:
+    type: "object"
+    required:
+      - "up_time"
+    properties:
+      up_time:
+        type: "integer"
+  sorting_def:
+    type: "object"
+    required:
+      - "sort_parameter"
+      - "direction"
+    properties:
+      sort_parameter:
+        type: "string"
+        enum:
+          - type
+          - price
+          - title
+      direction:
+        type: 'integer'
+        enum:
+          - 1
+          - -1
+securityDefinitions:
+  jwt:
+    type: apiKey
+    name: authorization
+    in: header
