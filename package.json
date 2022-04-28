@@ -13,7 +13,7 @@
   "license": "Unlicense",
   "private": true,
   "dependencies": {
-    "async": "2.3.0",
+    "async": "2.6.4",
     "config": "1.21.0",
     "cors": "^2.8.5",
     "js-yaml": "3.3.0",
