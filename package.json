@@ -22,7 +22,7 @@
     "request": "2.81.0",
     "swagger-tools": "0.10.1",
     "jsonwebtoken": "^8.1.0",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "node-cache": "4.2.1",
     "cached-request": "2.0.1"
   },
