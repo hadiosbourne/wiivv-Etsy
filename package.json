@@ -14,7 +14,7 @@
   "private": true,
   "dependencies": {
     "async": "2.3.0",
-    "config": "1.21.0",
+    "config": "3.3.8",
     "cors": "^2.8.5",
     "js-yaml": "3.3.0",
     "lodash": "4.17.4",
